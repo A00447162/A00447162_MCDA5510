@@ -1,76 +1,71 @@
+﻿using log4net;
+using log4net.Config;
 using System;
 using System.IO;
+using System.Reflection;
 
 namespace Assignment1
 {
-
-
-
     public class Exceptions
     {
+        private static readonly ILog log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
-        static void Main()
+        public void WriteLog(string Error)
         {
-             var sw = OpenStream(@".\sampleFile.csv");
-            if (sw is null)
-                return;
-            sw.WriteLine("This is the first line.");
-            sw.WriteLine("This is the second line.");
-            sw.Close();
+            var logRepo = LogManager.GetRepository(Assembly.GetEntryAssembly());
+            XmlConfigurator.Configure(logRepo, new FileInfo("log4net.config"));
+
+            log.Error(Error);
         }
 
         static StreamWriter OpenStream(string path)
         {
+            Exceptions ex = new Exceptions();
             if (path is null)
             {
-                Console.WriteLine("You did not supply a file path.");
+                ex.WriteLog("You did not supply a file path.");
                 return null;
             }
-
             try
             {
                 var fs = new FileStream(path, FileMode.CreateNew);
+                
                 return new StreamWriter(fs);
             }
             catch (FileNotFoundException)
             {
-                Console.WriteLine("The file or directory cannot be found.");
+                ex.WriteLog("The file or directory cannot be found.");
             }
             catch (DirectoryNotFoundException)
             {
-                Console.WriteLine("The file or directory cannot be found.");
+                ex.WriteLog("The file or directory cannot be found.");
             }
             catch (DriveNotFoundException)
             {
-                Console.WriteLine("The drive specified in 'path' is invalid.");
+                ex.WriteLog("The drive specified in 'path' is invalid.");
             }
             catch (PathTooLongException)
             {
-                Console.WriteLine("'path' exceeds the maxium supported path length.");
+                ex.WriteLog("'path' exceeds the maxium supported path length.");
             }
             catch (UnauthorizedAccessException)
             {
-                Console.WriteLine("You do not have permission to create this file.");
+                ex.WriteLog("You do not have permission to create this file.");
             }
             catch (IOException e) when ((e.HResult & 0x0000FFFF) == 32)
             {
-                Console.WriteLine("There is a sharing violation.");
+                ex.WriteLog("There is a sharing violation.");
             }
             catch (IOException e) when ((e.HResult & 0x0000FFFF) == 80)
             {
-                Console.WriteLine("The file already exists.");
+                ex.WriteLog("The file already exists.");
             }
             catch (IOException e)
             {
-                Console.WriteLine($"An exception occurred:\nError code: " +
+                ex.WriteLog($"An exception occurred:\nError code: " +
                                   $"{e.HResult & 0x0000FFFF}\nMessage: {e.Message}");
             }
             return null;
         }
-
     }
-
-
-
-
 }
