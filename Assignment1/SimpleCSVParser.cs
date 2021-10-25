@@ -20,6 +20,7 @@ namespace Assignment1
                     parser.SetDelimiters(",");
                     while (!parser.EndOfData)
                     {
+                        //Process row
                         string[] fields = parser.ReadFields();
                         if (fields[0] == "First Name")
                             continue;
@@ -27,7 +28,7 @@ namespace Assignment1
                         sbRecords = new StringBuilder();
                         for(int i= 0; i < fields.Length; i++)
                         {
-                            if (!fields[i].Equals(""))
+                            if (!(String.IsNullOrEmpty(fields[i])))
                             {
                                 sbRecords.Append(fields[i] + ",");
                             }
@@ -56,6 +57,7 @@ namespace Assignment1
             {
                 ex.WriteLog(ioe.StackTrace);
             }
+            //return sb;
         }
     }
 }
